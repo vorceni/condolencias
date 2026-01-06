@@ -29,7 +29,8 @@
 
         .app-container {
             display: flex;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
         }
 
         /* ========== CONTROL PANEL ========== */
@@ -688,10 +689,9 @@
             padding: 40px;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             overflow-y: auto;
-            min-height: 100vh;
         }
 
         /* ========== NOTE CARD THEMES ========== */
@@ -941,10 +941,26 @@
             font-weight: 500;
         }
 
-        /* Cortel Hide Custom Message & Footer Note */
-        .theme-cortel .custom-message,
+        /* Cortel Hide Footer Note (custom message is now allowed) */
         .theme-cortel .footer-note {
             display: none;
+        }
+
+        /* Cortel Custom Message Styling */
+        .theme-cortel .custom-message {
+            font-family: 'Cinzel', serif;
+            font-style: normal;
+            font-size: 16px;
+            color: #002B49;
+            line-height: 1.6;
+            margin-top: 24px;
+            padding: 18px 24px;
+            border: 2px solid #002B49;
+            border-radius: 12px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            position: relative;
+            z-index: 1;
         }
 
         /* Cortel Flowers Contact Pill */
@@ -1454,8 +1470,7 @@
                 </div>
                 <div class="input-group">
                     <label><i class="fas fa-map-marker-alt"></i> Local</label>
-                    <input type="text" id="wakeLocationInput" placeholder="Nome do local..."
-                        value="Cemitério Campo Grande">
+                    <input type="text" id="wakeLocationInput" placeholder="Nome do local..." value="Cemitério do Araçá">
                 </div>
                 <div class="row">
                     <div class="input-group">
@@ -1464,13 +1479,13 @@
                     </div>
                     <div class="input-group">
                         <label><i class="fas fa-clock"></i> Horário</label>
-                        <input type="text" id="wakeTimeInput" placeholder="Das 08h às 14h" value="12:00 hs">
+                        <input type="text" id="wakeTimeInput" placeholder="Das 08h às 14h" value="12:00 às 16:00">
                     </div>
                 </div>
                 <div class="input-group">
                     <label><i class="fas fa-home"></i> Endereço</label>
                     <input type="text" id="wakeAddressInput" placeholder="Rua, número, bairro..."
-                        value="Av. Nossa Sra. do Sabará, 1373 - Vila São Pedro, SP">
+                        value="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">
                 </div>
             </div>
 
@@ -1539,38 +1554,18 @@
                     <button class="phrase-btn" data-phrase="Seu legado viverá para sempre.">Legado eterno</button>
                 </div>
                 <div class="input-group">
-                    <textarea id="messageInput"
-                        placeholder="Escreva uma mensagem personalizada...">A família agradece a presença de todos neste momento de dor.</textarea>
+                    <textarea id="messageInput" placeholder="Escreva uma mensagem personalizada..."></textarea>
                 </div>
             </div>
 
             <!-- Theme Selection -->
-            <div class="section">
+            <!-- Themes removed as requested, keeping only Cortel functionality hidden or default -->
+            <div class="section" style="display: none;">
                 <div class="section-title"><i class="fas fa-palette"></i> Escolha o Tema</div>
                 <div class="themes">
                     <button class="theme-btn active" data-theme="theme-cortel" onclick="setTheme('theme-cortel')">
                         <span class="color-dot" style="background: linear-gradient(135deg, #ffffff, #002B49);"></span>
                         Cortel
-                    </button>
-                    <button class="theme-btn" data-theme="theme-sereno" onclick="setTheme('theme-sereno')">
-                        <span class="color-dot" style="background: linear-gradient(135deg, #f8fafc, #3b82f6);"></span>
-                        Sereno
-                    </button>
-                    <button class="theme-btn" data-theme="theme-solene" onclick="setTheme('theme-solene')">
-                        <span class="color-dot" style="background: linear-gradient(135deg, #1e293b, #a78bfa);"></span>
-                        Solene
-                    </button>
-                    <button class="theme-btn" data-theme="theme-floral" onclick="setTheme('theme-floral')">
-                        <span class="color-dot" style="background: linear-gradient(135deg, #fdf2f8, #ec4899);"></span>
-                        Floral
-                    </button>
-                    <button class="theme-btn" data-theme="theme-classico" onclick="setTheme('theme-classico')">
-                        <span class="color-dot" style="background: linear-gradient(135deg, #fefce8, #d97706);"></span>
-                        Clássico
-                    </button>
-                    <button class="theme-btn" data-theme="theme-moderno" onclick="setTheme('theme-moderno')">
-                        <span class="color-dot" style="background: linear-gradient(135deg, #fafafa, #8b5cf6);"></span>
-                        Moderno
                     </button>
                 </div>
             </div>
@@ -1623,7 +1618,7 @@
                 <div class="details-section">
                     <div class="detail-block" id="wakeBlock">
                         <div class="detail-block-title"><i class="fas fa-dove"></i> Velório</div>
-                        <div class="detail-location" id="displayWakeLocation">Cemitério Campo Grande</div>
+                        <div class="detail-location" id="displayWakeLocation">Cemitério do Araçá</div>
                         <div class="detail-info-grid">
                             <div class="detail-info-item">
                                 <span class="detail-info-label"><i class="fas fa-calendar-alt"></i> Data</span>
@@ -1631,12 +1626,12 @@
                             </div>
                             <div class="detail-info-item">
                                 <span class="detail-info-label"><i class="fas fa-clock"></i> Horário</span>
-                                <span class="detail-info-value" id="displayWakeTime">12:00 hs</span>
+                                <span class="detail-info-value" id="displayWakeTime">12:00 às 16:00</span>
                             </div>
                             <div class="detail-info-item full-width">
                                 <span class="detail-info-label"><i class="fas fa-map-marker-alt"></i> Endereço</span>
-                                <span class="detail-info-value" id="displayWakeAddress">Av. Nossa Sra. do Sabará, 1373 -
-                                    Vila São Pedro, SP</span>
+                                <span class="detail-info-value" id="displayWakeAddress">Av. Dr. Arnaldo, 666 - Cerqueira
+                                    César, SP</span>
                             </div>
                         </div>
                     </div>
@@ -1644,7 +1639,7 @@
                     <div class="detail-block" id="burialBlock">
                         <div class="detail-block-title"><i class="fas fa-monument" id="displayBurialIcon"></i> <span
                                 id="displayBurialTitle">Sepultamento</span></div>
-                        <div class="detail-location" id="displayBurialLocation">Cemitério Campo Grande</div>
+                        <div class="detail-location" id="displayBurialLocation">Cemitério do Araçá</div>
                         <div class="detail-info-grid">
                             <div class="detail-info-item">
                                 <span class="detail-info-label"><i class="fas fa-calendar-alt"></i> Data</span>
@@ -1656,15 +1651,14 @@
                             </div>
                             <div class="detail-info-item full-width">
                                 <span class="detail-info-label"><i class="fas fa-map-marker-alt"></i> Endereço</span>
-                                <span class="detail-info-value" id="displayBurialAddress">Av. Nossa Sra. do Sabará, 1373
-                                    - Vila São Pedro, SP</span>
+                                <span class="detail-info-value" id="displayBurialAddress">Av. Dr. Arnaldo, 666 -
+                                    Cerqueira César, SP</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="custom-message" id="displayMessage">A família agradece a presença de todos neste momento de
-                    dor.</div>
+                <div class="custom-message hidden" id="displayMessage"></div>
 
                 <div class="footer-note">
                     <i class="fas fa-heart"></i> Que descanse em paz
@@ -1748,9 +1742,26 @@
             { input: 'wakeAddressInput', display: 'displayWakeAddress' },
             { input: 'burialLocationInput', display: 'displayBurialLocation' },
             { input: 'burialTimeInput', display: 'displayBurialTime' },
-            { input: 'burialAddressInput', display: 'displayBurialAddress' },
-            { input: 'messageInput', display: 'displayMessage' }
+            { input: 'burialAddressInput', display: 'displayBurialAddress' }
         ];
+
+        // Separate handler for message to manage visibility
+        const messageInputEl = document.getElementById('messageInput');
+        const displayMessageEl = document.getElementById('displayMessage');
+
+        function updateMessageVisibility() {
+            const value = messageInputEl.value.trim();
+            displayMessageEl.textContent = value || '';
+            if (value) {
+                displayMessageEl.classList.remove('hidden');
+            } else {
+                displayMessageEl.classList.add('hidden');
+            }
+        }
+
+        messageInputEl.addEventListener('input', updateMessageVisibility);
+        // Initialize on load
+        updateMessageVisibility();
 
         textSyncFields.forEach(field => {
             const inputEl = document.getElementById(field.input);
@@ -2058,7 +2069,7 @@
                 burialIcon.className = 'fas fa-fire';
                 burialTitle.textContent = 'Cremação';
                 displayBurialIcon.className = 'fas fa-fire';
-                displayBurialTitle.textContent = 'Cerimônia de Cremação';
+                displayBurialTitle.textContent = 'Cremação';
             } else {
                 burialIcon.className = 'fas fa-cross';
                 burialTitle.textContent = 'Sepultamento';
@@ -2075,8 +2086,8 @@
         phraseBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const phrase = btn.dataset.phrase;
-                messageInput.value = phrase;
-                displayMessage.textContent = phrase;
+                messageInputEl.value = phrase;
+                updateMessageVisibility();
             });
         });
 
@@ -2125,20 +2136,14 @@
         });
 
         // ========== THEME SWITCHING ==========
+        // ========== THEME SWITCHING ==========
         function setTheme(themeName) {
+            // Force Cortel
+            if (themeName !== 'theme-cortel') themeName = 'theme-cortel';
+
             const noteCard = document.getElementById('captureArea');
-            const themes = ['theme-sereno', 'theme-solene', 'theme-floral', 'theme-classico', 'theme-moderno', 'theme-cortel'];
-
-            themes.forEach(t => noteCard.classList.remove(t));
-            noteCard.classList.add(themeName);
-
-            document.querySelectorAll('.theme-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-theme="${themeName}"]`).classList.add('active');
-
-            // Save preference
-            localStorage.setItem('preferredTheme', themeName);
+            // Remove any other potential classes just in case, though only Cortel is used now
+            noteCard.className = 'note-card ' + themeName;
 
             // Recalculate name size for new theme
             adjustNameSize();
@@ -2146,10 +2151,8 @@
 
         // Load saved theme
         window.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('preferredTheme');
-            if (savedTheme) {
-                setTheme(savedTheme);
-            }
+            // Always set Cortel on load
+            setTheme('theme-cortel');
             adjustNameSize();
         });
 
