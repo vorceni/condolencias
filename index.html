@@ -250,9 +250,10 @@
         }
 
         .photo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            width: auto;
+            height: auto;
+            max-width: none;
+            max-height: none;
             display: none;
             pointer-events: none;
         }
@@ -413,10 +414,14 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            min-width: 100%;
-            min-height: 100%;
             transform: translate(-50%, -50%);
             transition: transform 0.1s ease;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .photo-editor-preview img.grabbing {
+            cursor: grabbing;
         }
 
         .photo-editor-controls {
@@ -1048,10 +1053,8 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            min-width: 100%;
-            min-height: 100%;
             transform: translate(-50%, -50%);
-            object-fit: cover;
+            /* min-width/height removed to allow full freedom */
         }
 
         .deceased-name {
@@ -1695,7 +1698,7 @@
             <div class="photo-editor-controls">
                 <div class="photo-editor-control">
                     <label><i class="fas fa-search-plus"></i> Zoom</label>
-                    <input type="range" class="photo-editor-slider" id="editorZoomSlider" min="100" max="300"
+                    <input type="range" class="photo-editor-slider" id="editorZoomSlider" min="10" max="300"
                         value="100">
                 </div>
                 <div class="photo-editor-control">
@@ -1904,6 +1907,11 @@
         function updateEditorPreview() {
             const transform = `translate(calc(-50% + ${photoState.offsetX}px), calc(-50% + ${photoState.offsetY}px)) scale(${photoState.scale})`;
             photoEditorImg.style.transform = transform;
+
+            // Update sliders visually without triggering events
+            editorZoomSlider.value = photoState.scale * 100;
+            editorPosXSlider.value = photoState.offsetX;
+            editorPosYSlider.value = photoState.offsetY;
         }
 
         // Update all photo displays
@@ -1918,9 +1926,6 @@
             photoState.offsetX = 0;
             photoState.offsetY = 0;
             photoState.scale = 1;
-            editorZoomSlider.value = 100;
-            editorPosXSlider.value = 0;
-            editorPosYSlider.value = 0;
             updateEditorPreview();
             updatePhotoTransform();
         }
@@ -1940,6 +1945,60 @@
             photoState.offsetY = parseInt(editorPosYSlider.value);
             updateEditorPreview();
         });
+
+        // ========== DRAG & ZOOM INTERACTIONS ==========
+        const previewContainer = document.getElementById('photoEditorPreview');
+
+        // Wheel Zoom
+        previewContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = -Math.sign(e.deltaY) * 0.1;
+            let newScale = photoState.scale + delta;
+
+            // Limit zoom
+            newScale = Math.max(0.1, Math.min(newScale, 3.0)); // 0.1x to 3.0x
+
+            photoState.scale = parseFloat(newScale.toFixed(2));
+            updateEditorPreview();
+        });
+
+        // Dragging Logic
+        function startDrag(e) {
+            e.preventDefault();
+            photoState.isDragging = true;
+            photoState.startX = (e.pageX || e.touches[0].pageX) - photoState.offsetX;
+            photoState.startY = (e.pageY || e.touches[0].pageY) - photoState.offsetY;
+
+            photoEditorImg.classList.add('grabbing');
+        }
+
+        function doDrag(e) {
+            if (!photoState.isDragging) return;
+            e.preventDefault();
+
+            const x = (e.pageX || e.touches[0].pageX);
+            const y = (e.pageY || e.touches[0].pageY);
+
+            photoState.offsetX = x - photoState.startX;
+            photoState.offsetY = y - photoState.startY;
+
+            updateEditorPreview();
+        }
+
+        function stopDrag() {
+            photoState.isDragging = false;
+            photoEditorImg.classList.remove('grabbing');
+        }
+
+        // Mouse Events
+        previewContainer.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', doDrag);
+        document.addEventListener('mouseup', stopDrag);
+
+        // Touch Events
+        previewContainer.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', doDrag, { passive: false });
+        document.addEventListener('touchend', stopDrag);
 
         // Editor buttons
         editPhotoBtn.addEventListener('click', openPhotoEditor);
