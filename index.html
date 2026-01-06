@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Nota de Condolências</title>
+    <meta name="description"
+        content="Crie notas de condolências personalizadas com foto, dados do velório e sepultamento. Baixe como imagem.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== CONTROL PANEL ========== */
+        .controls {
+            width: 420px;
+            min-width: 420px;
+            max-width: 420px;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .controls h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .controls h1 i {
+            font-size: 28px;
+            opacity: 0.9;
+        }
+
+        .controls .subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 28px;
+            font-weight: 300;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            font-size: 14px;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked+.toggle-slider {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .toggle-switch input:checked+.toggle-slider::before {
+            transform: translateX(20px);
+        }
+
+        /* Input Groups */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .input-group label i {
+            opacity: 0.8;
+            font-size: 12px;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .input-group input[type="date"] {
+            color-scheme: dark;
+        }
+
+        .input-group input::placeholder,
+        .input-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Photo Upload */
+        .photo-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .photo-upload {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+        }
+
+        .photo-upload input[type="file"] {
+            display: none;
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px dashed rgba(255, 255, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .photo-preview:hover {
+            border-color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .photo-preview i {
+            font-size: 28px;
+            margin-bottom: 6px;
+            opacity: 0.8;
+        }
+
+        .photo-preview span {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            pointer-events: none;
+        }
+
+        .photo-preview.has-photo i,
+        .photo-preview.has-photo span {
+            display: none;
+        }
+
+        .photo-preview.has-photo img {
+            display: block;
+        }
+
+        /* Photo Adjustment Controls */
+        .photo-controls {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .photo-controls.active {
+            display: flex;
+        }
+
+        .photo-controls label {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .zoom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .zoom-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-hint {
+            font-size: 11px;
+            opacity: 0.7;
+            text-align: center;
+        }
+
+        .reset-photo-btn {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .reset-photo-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Photo Editor Modal */
+        .photo-editor-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .photo-editor-modal.active {
+            display: flex;
+        }
+
+        .photo-editor-panel {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            color: white;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .photo-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .photo-editor-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .photo-editor-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .photo-editor-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .photo-editor-preview {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+            background: #0f172a;
+        }
+
+        .photo-editor-preview img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease;
+        }
+
+        .photo-editor-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .photo-editor-control {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .photo-editor-control label {
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.9;
+        }
+
+        .photo-editor-control label i {
+            font-size: 14px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .photo-editor-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .photo-editor-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .photo-editor-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .photo-editor-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .photo-editor-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .photo-editor-btn-reset {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .photo-editor-btn-reset:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .photo-editor-btn-confirm {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .photo-editor-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .edit-photo-btn {
+            width: 100%;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .edit-photo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Phrase Suggestions */
+        .phrase-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .phrase-btn {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .phrase-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        /* Cremation Toggle */
+        .cremation-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .cremation-toggle span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Theme Selector */
+        .themes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .theme-btn {
+            padding: 12px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 11px;
+        }
+
+        .theme-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .theme-btn.active {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: white;
+        }
+
+        .color-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            flex-shrink: 0;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .download-btn,
+        .share-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .download-btn {
+            background: white;
+            color: #667eea;
+        }
+
+        .share-btn {
+            background: #25D366;
+            color: white;
+        }
+
+        .download-btn:hover,
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-btn:active,
+        .share-btn:active {
+            transform: translateY(0);
+        }
+
+        .download-btn:disabled,
+        .share-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .download-btn i,
+        .share-btn i {
+            font-size: 18px;
+        }
+
+        /* ========== PREVIEW CONTAINER ========== */
+        .preview-container {
+            flex: 1;
+            padding: 40px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+
+        /* ========== NOTE CARD THEMES ========== */
+        .note-card {
+            width: 550px;
+            padding: 50px 45px;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Theme: Sereno (Light Blue) */
+        .theme-sereno {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #1e3a5f;
+            --text-secondary: #64748b;
+            --accent-color: #3b82f6;
+            --border-color: #e2e8f0;
+            --divider-gradient: linear-gradient(to right, transparent, #cbd5e1, transparent);
+            background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Theme: Solene (Dark) */
+        .theme-solene {
+            --bg-primary: #1e293b;
+            --bg-secondary: #0f172a;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-color: #a78bfa;
+            --border-color: #334155;
+            --divider-gradient: linear-gradient(to right, transparent, #475569, transparent);
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+        }
+
+        /* Theme: Floral (Pink/Rose) */
+        .theme-floral {
+            --bg-primary: #fdf2f8;
+            --bg-secondary: #ffffff;
+            --text-primary: #831843;
+            --text-secondary: #9d174d;
+            --accent-color: #ec4899;
+            --border-color: #fbcfe8;
+            --divider-gradient: linear-gradient(to right, transparent, #f9a8d4, transparent);
+            background: linear-gradient(180deg, #ffffff 0%, #fce7f3 100%);
+            border: 1px solid #fbcfe8;
+        }
+
+        /* Theme: Clássico (Sepia/Antique) */
+        .theme-classico {
+            --bg-primary: #fefce8;
+            --bg-secondary: #fffbeb;
+            --text-primary: #78350f;
+            --text-secondary: #92400e;
+            --accent-color: #d97706;
+            --border-color: #fde68a;
+            --divider-gradient: linear-gradient(to right, transparent, #fcd34d, transparent);
+            background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+            border: 1px solid #fde68a;
+        }
+
+        /* Theme: Moderno (Gradient) */
+        .theme-moderno {
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --text-primary: #18181b;
+            --text-secondary: #52525b;
+            --accent-color: #8b5cf6;
+            --border-color: #e4e4e7;
+            --divider-gradient: linear-gradient(to right, transparent, #a1a1aa, transparent);
+            background: linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f4f4f5 100%);
+            border: 1px solid #e4e4e7;
+        }
+
+        /* Theme: Cortel (Corporate White/Navy) */
+        .theme-cortel {
+            --bg-primary: #ffffff;
+            --bg-secondary: #ffffff;
+            --text-primary: #002B49;
+            --text-secondary: #002B49;
+            --accent-color: #002B49;
+            --border-color: #002B49;
+            --divider-gradient: linear-gradient(to right, transparent, #002B49, transparent);
+            background: #ffffff;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Cortel Floral Decorations - using actual image */
+        .theme-cortel {
+            background: #ffffff url('fundo-de-flores.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* Hide the pseudo-element decorations, use background image instead */
+        .theme-cortel::before,
+        .theme-cortel::after {
+            display: none;
+        }
+
+        /* Cortel Corner Flowers - hidden, using background image instead */
+        .cortel-corner-tr,
+        .cortel-corner-bl {
+            display: none !important;
+        }
+
+        /* Cortel Special Title */
+        .cortel-title {
+            display: none;
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #002B49;
+            line-height: 1.4;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .theme-cortel .cortel-title {
+            display: block;
+        }
+
+        .theme-cortel .header-symbol,
+        .theme-cortel .condolences-title {
+            display: none;
+        }
+
+        /* Cortel Mourning Symbol - using actual image */
+        .mourning-ribbon {
+            display: none;
+            width: 140px;
+            height: 180px;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mourning-ribbon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .mourning-ribbon svg {
+            display: none;
+        }
+
+        .theme-cortel .mourning-ribbon {
+            display: block;
+        }
+
+        .theme-cortel .photo-frame {
+            display: none;
+        }
+
+        .theme-cortel.has-photo .photo-frame {
+            display: block;
+        }
+
+        .theme-cortel.has-photo .mourning-ribbon {
+            display: none;
+        }
+
+        /* Cortel Name Styling */
+        .theme-cortel .deceased-name {
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 36px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Cortel Dates with Icons */
+        .theme-cortel .dates {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .theme-cortel .dates .date-star,
+        .theme-cortel .dates .date-cross {
+            display: inline;
+        }
+
+        .dates .date-star,
+        .dates .date-cross {
+            display: none;
+        }
+
+        /* Cortel Hide Divider Ornament */
+        .theme-cortel .divider-ornament {
+            display: none;
+        }
+
+        /* Cortel Detail Blocks */
+        .theme-cortel .detail-block {
+            background: #ffffff;
+            border: 2px solid #002B49;
+            border-radius: 15px;
+            padding: 24px;
+        }
+
+        .theme-cortel .detail-block-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #002B49;
+        }
+
+        .theme-cortel .detail-location {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .theme-cortel .detail-time,
+        .theme-cortel .detail-date,
+        .theme-cortel .detail-address {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Cortel Hide Custom Message & Footer Note */
+        .theme-cortel .custom-message,
+        .theme-cortel .footer-note {
+            display: none;
+        }
+
+        /* Cortel Flowers Contact Pill */
+        .flowers-contact {
+            display: none;
+            margin-top: 28px;
+            padding: 14px 24px;
+            border: 2px solid #002B49;
+            border-radius: 30px;
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .flowers-contact-text {
+            font-size: 12px;
+            color: #002B49;
+            margin-bottom: 4px;
+        }
+
+        .flowers-contact-number {
+            font-size: 16px;
+            font-weight: 600;
+            color: #002B49;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .flowers-contact-number i {
+            color: #25D366;
+            font-size: 18px;
+        }
+
+        .theme-cortel .flowers-contact {
+            display: block;
+        }
+
+        .theme-cortel .company-logo {
+            border-top: none;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .theme-cortel .details-section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .theme-cortel .detail-block {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Note Card Content */
+        .header-symbol {
+            font-size: 42px;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            opacity: 0.85;
+        }
+
+        .condolences-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .photo-frame {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 24px;
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .photo-frame::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), transparent);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .photo-frame-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid var(--bg-secondary);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .photo-frame img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        .deceased-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.3;
+            transition: font-size 0.3s ease;
+        }
+
+        .dates {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-weight: 300;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--divider-gradient);
+            margin: 24px 0;
+        }
+
+        .divider-ornament {
+            text-align: center;
+            margin: 28px 0;
+            position: relative;
+        }
+
+        .divider-ornament::before,
+        .divider-ornament::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 35%;
+            height: 1px;
+            background: var(--divider-gradient);
+        }
+
+        .divider-ornament::before {
+            left: 0;
+        }
+
+        .divider-ornament::after {
+            right: 0;
+        }
+
+        .divider-ornament i {
+            color: var(--accent-color);
+            font-size: 18px;
+            background: var(--bg-primary);
+            padding: 0 16px;
+            opacity: 0.7;
+        }
+
+        .details-section {
+            margin-top: 28px;
+        }
+
+        .detail-block {
+            margin-bottom: 24px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .detail-block.hidden {
+            display: none;
+        }
+
+        .theme-solene .detail-block {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .detail-block-title {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .detail-block-title i {
+            font-size: 14px;
+        }
+
+        .detail-location {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+        }
+
+        .detail-info-item {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .detail-info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-info-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-color);
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+
+        .detail-info-value {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .detail-info-value i {
+            margin-right: 4px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .detail-time {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .detail-time i {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .detail-date,
+        .detail-address {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        /* Location Presets */
+        .location-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .location-preset-btn {
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            color: white;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .location-preset-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .location-preset-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+
+        .detail-date i,
+        .detail-address i {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .custom-message {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-top: 28px;
+            padding: 20px;
+            border-left: 3px solid var(--accent-color);
+            text-align: left;
+            background: rgba(0, 0, 0, 0.015);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .custom-message.hidden {
+            display: none;
+        }
+
+        .theme-solene .custom-message {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .footer-note {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 13px;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        .company-logo {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .company-logo img {
+            max-width: 180px;
+            max-height: 60px;
+            object-fit: contain;
+            opacity: 0.85;
+            transition: opacity 0.3s ease;
+        }
+
+        .theme-solene .company-logo img {
+            filter: brightness(1.2);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .controls {
+                width: 100%;
+                max-width: 100%;
+                min-width: auto;
+                max-height: none;
+            }
+
+            .preview-container {
+                min-height: auto;
+                padding: 30px 20px;
+            }
+
+            .note-card {
+                width: 100%;
+                max-width: 550px;
+                padding: 40px 30px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                padding: 24px 20px;
+            }
+
+            .themes {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .note-card {
+                padding: 32px 24px;
+            }
+
+            .deceased-name {
+                font-size: 24px;
+            }
+
+            .photo-frame {
+                width: 130px;
+                height: 130px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* ========== PRINT STYLES ========== */
+        @media print {
+            .controls {
+                display: none;
+            }
+
+            .preview-container {
+                padding: 0;
+                background: white;
+            }
+
+            .note-card {
+                box-shadow: none;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Control Panel -->
+        <aside class="controls">
+            <h1><i class="fas fa-dove"></i> Nota de Condolências</h1>
+            <p class="subtitle">Crie uma nota personalizada e baixe como imagem</p>
+
+            <!-- Photo Upload Section -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-camera"></i> Foto do Falecido</div>
+                <div class="photo-upload-container">
+                    <label class="photo-upload">
+                        <input type="file" id="photoInput" accept="image/*">
+                        <div class="photo-preview" id="photoPreview">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Adicionar foto</span>
+                            <img id="previewImg" src="" alt="Foto">
+                        </div>
+                    </label>
+                    <div class="photo-controls" id="photoControls">
+                        <button type="button" class="edit-photo-btn" id="editPhotoBtn">
+                            <i class="fas fa-crop-alt"></i> Ajustar Foto
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Info Section -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-user"></i> Informações Pessoais</div>
+                <div class="input-group">
+                    <label><i class="fas fa-signature"></i> Nome Completo</label>
+                    <input type="text" id="nameInput" placeholder="Nome do falecido" value="João da Silva">
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label><i class="fas fa-star"></i> Nascimento</label>
+                        <input type="date" id="birthInput" value="1945-03-15">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-heart"></i> Falecimento</label>
+                        <input type="date" id="deathInput" value="2026-01-05">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wake Info Section -->
+            <div class="section" id="wakeSection">
+                <div class="section-header">
+                    <div class="section-title"><i class="fas fa-church"></i> Velório</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="wakeEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="location-presets" id="wakePresets">
+                    <button type="button" class="location-preset-btn" data-location="Cemitério do Araçá"
+                        data-address="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">Araçá</button>
+                    <button type="button" class="location-preset-btn" data-location="Cemitério Vila Nova Cachoeirinha"
+                        data-address="Av. João Marcelino Branco, 345 - Vila Nova Cachoeirinha, SP">Vila N.
+                        Cachoeirinha</button>
+                    <button type="button" class="location-preset-btn" data-location="Cemitério Santo Amaro"
+                        data-address="R. Min. Roberto Cardoso Alves, 186 - Santo Amaro, SP">Santo Amaro</button>
+                    <button type="button" class="location-preset-btn" data-location="Cemitério Dom Bosco"
+                        data-address="Estrada dos Pinheirinhos, 860 - Perus, São Paulo - SP">Dom Bosco</button>
+                    <button type="button" class="location-preset-btn" data-location="Cemitério São Paulo"
+                        data-address="R. Cardeal Arcoverde, 1250 - Pinheiros, SP">São Paulo</button>
+                    <button type="button" class="location-preset-btn active" data-location="Personalizado"
+                        data-address="">✏️ Outro</button>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Local</label>
+                    <input type="text" id="wakeLocationInput" placeholder="Nome do local..."
+                        value="Cemitério Campo Grande">
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar-alt"></i> Data</label>
+                        <input type="date" id="wakeDateInput" value="2026-01-07">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-clock"></i> Horário</label>
+                        <input type="text" id="wakeTimeInput" placeholder="Das 08h às 14h" value="12:00 hs">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-home"></i> Endereço</label>
+                    <input type="text" id="wakeAddressInput" placeholder="Rua, número, bairro..."
+                        value="Av. Nossa Sra. do Sabará, 1373 - Vila São Pedro, SP">
+                </div>
+            </div>
+
+            <!-- Burial Info Section -->
+            <div class="section" id="burialSection">
+                <div class="section-header">
+                    <div class="section-title"><i class="fas fa-cross" id="burialIcon"></i> <span
+                            id="burialTitle">Sepultamento</span></div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="burialEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="cremation-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="cremationMode">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span><i class="fas fa-fire"></i> Modo Cremação</span>
+                </div>
+                <div class="location-presets" id="burialPresets">
+                    <button type="button" class="location-preset-btn" data-location="Cemitério do Araçá"
+                        data-address="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">Araçá</button>
+                    <button type="button" class="location-preset-btn" data-location="Cemitério Vila Nova Cachoeirinha"
+                        data-address="Av. João Marcelino Branco, 345 - Vila Nova Cachoeirinha, SP">V.N.
+                        Cachoeirinha</button>
+                    <button type="button" class="location-preset-btn" data-location="Cemitério Santo Amaro"
+                        data-address="R. Min. Roberto Cardoso Alves, 186 - Santo Amaro, SP">Santo Amaro</button>
+                    <button type="button" class="location-preset-btn" data-location="Cemitério Dom Bosco"
+                        data-address="Estrada dos Pinheirinhos, 860 - Perus, São Paulo - SP">Dom Bosco</button>
+                    <button type="button" class="location-preset-btn" data-location="Cemitério São Paulo"
+                        data-address="R. Cardeal Arcoverde, 1250 - Pinheiros, SP">São Paulo</button>
+                    <button type="button" class="location-preset-btn active" data-location="Personalizado"
+                        data-address="">✏️ Outro</button>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Local</label>
+                    <input type="text" id="burialLocationInput" placeholder="Nome do local..."
+                        value="Cemitério do Araçá">
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar-alt"></i> Data</label>
+                        <input type="date" id="burialDateInput" value="2026-01-07">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-clock"></i> Horário</label>
+                        <input type="text" id="burialTimeInput" placeholder="Às 15h" value="14:30 hs">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-home"></i> Endereço</label>
+                    <input type="text" id="burialAddressInput" placeholder="Rua, número, bairro..."
+                        value="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">
+                </div>
+            </div>
+
+            <!-- Custom Message Section -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-quote-left"></i> Mensagem (opcional)</div>
+                <div class="phrase-suggestions">
+                    <button class="phrase-btn" data-phrase="Combateu o bom combate.">Combateu o bom combate</button>
+                    <button class="phrase-btn" data-phrase="Saudades eternas.">Saudades eternas</button>
+                    <button class="phrase-btn" data-phrase="Descanse nos braços do Pai.">Nos braços do Pai</button>
+                    <button class="phrase-btn" data-phrase="Sempre em nossos corações.">Sempre no coração</button>
+                    <button class="phrase-btn" data-phrase="Seu legado viverá para sempre.">Legado eterno</button>
+                </div>
+                <div class="input-group">
+                    <textarea id="messageInput"
+                        placeholder="Escreva uma mensagem personalizada...">A família agradece a presença de todos neste momento de dor.</textarea>
+                </div>
+            </div>
+
+            <!-- Theme Selection -->
+            <div class="section">
+                <div class="section-title"><i class="fas fa-palette"></i> Escolha o Tema</div>
+                <div class="themes">
+                    <button class="theme-btn active" data-theme="theme-sereno" onclick="setTheme('theme-sereno')">
+                        <span class="color-dot" style="background: linear-gradient(135deg, #f8fafc, #3b82f6);"></span>
+                        Sereno
+                    </button>
+                    <button class="theme-btn" data-theme="theme-solene" onclick="setTheme('theme-solene')">
+                        <span class="color-dot" style="background: linear-gradient(135deg, #1e293b, #a78bfa);"></span>
+                        Solene
+                    </button>
+                    <button class="theme-btn" data-theme="theme-floral" onclick="setTheme('theme-floral')">
+                        <span class="color-dot" style="background: linear-gradient(135deg, #fdf2f8, #ec4899);"></span>
+                        Floral
+                    </button>
+                    <button class="theme-btn" data-theme="theme-classico" onclick="setTheme('theme-classico')">
+                        <span class="color-dot" style="background: linear-gradient(135deg, #fefce8, #d97706);"></span>
+                        Clássico
+                    </button>
+                    <button class="theme-btn" data-theme="theme-moderno" onclick="setTheme('theme-moderno')">
+                        <span class="color-dot" style="background: linear-gradient(135deg, #fafafa, #8b5cf6);"></span>
+                        Moderno
+                    </button>
+                    <button class="theme-btn" data-theme="theme-cortel" onclick="setTheme('theme-cortel')">
+                        <span class="color-dot" style="background: linear-gradient(135deg, #ffffff, #002B49);"></span>
+                        Cortel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="download-btn" id="downloadBtn" onclick="downloadNote()">
+                    <i class="fas fa-download"></i>
+                    Baixar
+                </button>
+                <button class="share-btn" id="shareBtn" onclick="shareNote()">
+                    <i class="fab fa-whatsapp"></i>
+                    Compartilhar
+                </button>
+            </div>
+        </aside>
+
+        <!-- Preview Container -->
+        <main class="preview-container">
+            <div id="captureArea" class="note-card theme-sereno">
+                <!-- Cortel Corner Decorations -->
+                <div class="cortel-corner-tr"></div>
+                <div class="cortel-corner-bl"></div>
+
+                <div class="header-symbol"><i class="fas fa-dove"></i></div>
+                <div class="condolences-title">Nota de Pesar</div>
+
+                <!-- Cortel Special Title -->
+                <div class="cortel-title">JUNTOS, NOS DESPEDIMOS E<br>CELEBRAMOS A MEMÓRIA DE:</div>
+
+                <!-- Mourning Ribbon (shown in Cortel when no photo) -->
+                <div class="mourning-ribbon">
+                    <img src="luto.png" alt="Símbolo de luto">
+                </div>
+
+                <div class="photo-frame">
+                    <div class="photo-frame-inner">
+                        <img id="displayPhoto"
+                            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e2e8f0'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%2394a3b8'/%3E%3Cellipse cx='50' cy='80' rx='28' ry='22' fill='%2394a3b8'/%3E%3C/svg%3E"
+                            alt="Foto do falecido">
+                    </div>
+                </div>
+
+                <div class="deceased-name" id="displayName">João da Silva</div>
+                <div class="dates">
+                    <span class="date-star">✦</span> <span id="displayBirth">15/03/1945</span> &nbsp;&nbsp;&nbsp; <span
+                        class="date-cross">✝</span> <span id="displayDeath">05/01/2026</span>
+                </div>
+
+                <div class="divider-ornament">
+                    <i class="fas fa-cross"></i>
+                </div>
+
+                <div class="details-section">
+                    <div class="detail-block" id="wakeBlock">
+                        <div class="detail-block-title"><i class="fas fa-dove"></i> Velório</div>
+                        <div class="detail-location" id="displayWakeLocation">Cemitério Campo Grande</div>
+                        <div class="detail-info-grid">
+                            <div class="detail-info-item">
+                                <span class="detail-info-label"><i class="fas fa-calendar-alt"></i> Data</span>
+                                <span class="detail-info-value" id="displayWakeDate">07/01/2026</span>
+                            </div>
+                            <div class="detail-info-item">
+                                <span class="detail-info-label"><i class="fas fa-clock"></i> Horário</span>
+                                <span class="detail-info-value" id="displayWakeTime">12:00 hs</span>
+                            </div>
+                            <div class="detail-info-item full-width">
+                                <span class="detail-info-label"><i class="fas fa-map-marker-alt"></i> Endereço</span>
+                                <span class="detail-info-value" id="displayWakeAddress">Av. Nossa Sra. do Sabará, 1373 -
+                                    Vila São Pedro, SP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-block" id="burialBlock">
+                        <div class="detail-block-title"><i class="fas fa-monument" id="displayBurialIcon"></i> <span
+                                id="displayBurialTitle">Sepultamento</span></div>
+                        <div class="detail-location" id="displayBurialLocation">Cemitério Campo Grande</div>
+                        <div class="detail-info-grid">
+                            <div class="detail-info-item">
+                                <span class="detail-info-label"><i class="fas fa-calendar-alt"></i> Data</span>
+                                <span class="detail-info-value" id="displayBurialDate">07/01/2026</span>
+                            </div>
+                            <div class="detail-info-item">
+                                <span class="detail-info-label"><i class="fas fa-clock"></i> Horário</span>
+                                <span class="detail-info-value" id="displayBurialTime">14:30 hs</span>
+                            </div>
+                            <div class="detail-info-item full-width">
+                                <span class="detail-info-label"><i class="fas fa-map-marker-alt"></i> Endereço</span>
+                                <span class="detail-info-value" id="displayBurialAddress">Av. Nossa Sra. do Sabará, 1373
+                                    - Vila São Pedro, SP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-message" id="displayMessage">A família agradece a presença de todos neste momento de
+                    dor.</div>
+
+                <div class="footer-note">
+                    <i class="fas fa-heart"></i> Que descanse em paz
+                </div>
+
+                <!-- Cortel Flowers Contact Pill -->
+                <div class="flowers-contact">
+                    <div class="flowers-contact-text">Para homenagear com flores:</div>
+                    <div class="flowers-contact-number">
+                        <i class="fab fa-whatsapp"></i> 11 98942-1434
+                    </div>
+                </div>
+
+                <div class="company-logo">
+                    <img src="logo-cortel.png" alt="Cortel São Paulo">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Photo Editor Modal -->
+    <div class="photo-editor-modal" id="photoEditorModal">
+        <div class="photo-editor-panel">
+            <div class="photo-editor-header">
+                <h3><i class="fas fa-crop-alt"></i> Ajustar Foto</h3>
+                <button class="photo-editor-close" id="photoEditorClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="photo-editor-preview" id="photoEditorPreview">
+                <img id="photoEditorImg" src="" alt="Foto para ajustar">
+            </div>
+            <div class="photo-editor-controls">
+                <div class="photo-editor-control">
+                    <label><i class="fas fa-search-plus"></i> Zoom</label>
+                    <input type="range" class="photo-editor-slider" id="editorZoomSlider" min="100" max="300"
+                        value="100">
+                </div>
+                <div class="photo-editor-control">
+                    <label><i class="fas fa-arrows-alt-h"></i> Posição Horizontal</label>
+                    <input type="range" class="photo-editor-slider" id="editorPosXSlider" min="-100" max="100"
+                        value="0">
+                </div>
+                <div class="photo-editor-control">
+                    <label><i class="fas fa-arrows-alt-v"></i> Posição Vertical</label>
+                    <input type="range" class="photo-editor-slider" id="editorPosYSlider" min="-100" max="100"
+                        value="0">
+                </div>
+            </div>
+            <div class="photo-editor-buttons">
+                <button class="photo-editor-btn photo-editor-btn-reset" id="editorResetBtn">
+                    <i class="fas fa-undo"></i> Redefinir
+                </button>
+                <button class="photo-editor-btn photo-editor-btn-confirm" id="editorConfirmBtn">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== PHOTO ADJUSTMENT STATE ==========
+        let photoState = {
+            offsetX: 0,
+            offsetY: 0,
+            scale: 1,
+            isDragging: false,
+            startX: 0,
+            startY: 0
+        };
+
+        // ========== FORMAT DATE TO BRAZILIAN ==========
+        function formatDateBR(dateString) {
+            if (!dateString) return '—';
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        // ========== REAL-TIME SYNC ==========
+        const textSyncFields = [
+            { input: 'wakeLocationInput', display: 'displayWakeLocation' },
+            { input: 'wakeTimeInput', display: 'displayWakeTime' },
+            { input: 'wakeAddressInput', display: 'displayWakeAddress' },
+            { input: 'burialLocationInput', display: 'displayBurialLocation' },
+            { input: 'burialTimeInput', display: 'displayBurialTime' },
+            { input: 'burialAddressInput', display: 'displayBurialAddress' },
+            { input: 'messageInput', display: 'displayMessage' }
+        ];
+
+        textSyncFields.forEach(field => {
+            const inputEl = document.getElementById(field.input);
+            const displayEl = document.getElementById(field.display);
+
+            inputEl.addEventListener('input', (e) => {
+                displayEl.textContent = e.target.value || '—';
+            });
+        });
+
+        // ========== WAKE & BURIAL DATE FIELDS ==========
+        const wakeDateInput = document.getElementById('wakeDateInput');
+        const burialDateInput = document.getElementById('burialDateInput');
+        const displayWakeDate = document.getElementById('displayWakeDate');
+        const displayBurialDate = document.getElementById('displayBurialDate');
+
+        wakeDateInput.addEventListener('change', () => {
+            displayWakeDate.textContent = formatDateBR(wakeDateInput.value);
+        });
+
+        burialDateInput.addEventListener('change', () => {
+            displayBurialDate.textContent = formatDateBR(burialDateInput.value);
+        });
+
+        // Initialize wake/burial dates
+        displayWakeDate.textContent = formatDateBR(wakeDateInput.value);
+        displayBurialDate.textContent = formatDateBR(burialDateInput.value);
+
+        // ========== NAME WITH AUTO-SIZING ==========
+        const nameInput = document.getElementById('nameInput');
+        const displayName = document.getElementById('displayName');
+
+        function adjustNameSize() {
+            const name = nameInput.value || '—';
+            displayName.textContent = name;
+
+            // Reset to default size first
+            displayName.style.fontSize = '';
+
+            // Get container width (approx 460px with padding)
+            const maxWidth = 460;
+
+            // Measure actual text width
+            const tempSpan = document.createElement('span');
+            tempSpan.style.cssText = `
+                font-family: 'Playfair Display', serif;
+                font-size: 30px;
+                font-weight: 600;
+                visibility: hidden;
+                position: absolute;
+                white-space: nowrap;
+            `;
+            tempSpan.textContent = name;
+            document.body.appendChild(tempSpan);
+
+            let fontSize = 30;
+            let textWidth = tempSpan.offsetWidth;
+
+            // Reduce font size until it fits
+            while (textWidth > maxWidth && fontSize > 16) {
+                fontSize -= 1;
+                tempSpan.style.fontSize = fontSize + 'px';
+                textWidth = tempSpan.offsetWidth;
+            }
+
+            document.body.removeChild(tempSpan);
+            displayName.style.fontSize = fontSize + 'px';
+        }
+
+        nameInput.addEventListener('input', adjustNameSize);
+
+        // ========== DATE FIELDS ==========
+        const birthInput = document.getElementById('birthInput');
+        const deathInput = document.getElementById('deathInput');
+        const displayBirth = document.getElementById('displayBirth');
+        const displayDeath = document.getElementById('displayDeath');
+
+        birthInput.addEventListener('change', () => {
+            displayBirth.textContent = formatDateBR(birthInput.value);
+        });
+
+        deathInput.addEventListener('change', () => {
+            displayDeath.textContent = formatDateBR(deathInput.value);
+        });
+
+        // Initialize dates
+        displayBirth.textContent = formatDateBR(birthInput.value);
+        displayDeath.textContent = formatDateBR(deathInput.value);
+
+        // ========== PHOTO UPLOAD ==========
+        const photoInput = document.getElementById('photoInput');
+        const photoPreview = document.getElementById('photoPreview');
+        const previewImg = document.getElementById('previewImg');
+        const displayPhoto = document.getElementById('displayPhoto');
+        const photoControls = document.getElementById('photoControls');
+        const editPhotoBtn = document.getElementById('editPhotoBtn');
+
+        // Photo Editor Modal Elements
+        const photoEditorModal = document.getElementById('photoEditorModal');
+        const photoEditorClose = document.getElementById('photoEditorClose');
+        const photoEditorImg = document.getElementById('photoEditorImg');
+        const editorZoomSlider = document.getElementById('editorZoomSlider');
+        const editorPosXSlider = document.getElementById('editorPosXSlider');
+        const editorPosYSlider = document.getElementById('editorPosYSlider');
+        const editorResetBtn = document.getElementById('editorResetBtn');
+        const editorConfirmBtn = document.getElementById('editorConfirmBtn');
+
+        let currentPhotoSrc = '';
+
+        photoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    currentPhotoSrc = event.target.result;
+                    previewImg.src = currentPhotoSrc;
+                    displayPhoto.src = currentPhotoSrc;
+                    photoEditorImg.src = currentPhotoSrc;
+                    photoPreview.classList.add('has-photo');
+                    photoControls.classList.add('active');
+
+                    // Add has-photo class to note card for Cortel theme
+                    document.getElementById('captureArea').classList.add('has-photo');
+
+                    // Reset photo state and open editor
+                    resetPhotoPosition();
+                    openPhotoEditor();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Open photo editor modal
+        function openPhotoEditor() {
+            photoEditorModal.classList.add('active');
+            // Sync sliders with current state
+            editorZoomSlider.value = photoState.scale * 100;
+            editorPosXSlider.value = photoState.offsetX;
+            editorPosYSlider.value = photoState.offsetY;
+            updateEditorPreview();
+        }
+
+        // Close photo editor modal
+        function closePhotoEditor() {
+            photoEditorModal.classList.remove('active');
+        }
+
+        // Update editor preview
+        function updateEditorPreview() {
+            const transform = `translate(calc(-50% + ${photoState.offsetX}px), calc(-50% + ${photoState.offsetY}px)) scale(${photoState.scale})`;
+            photoEditorImg.style.transform = transform;
+        }
+
+        // Update all photo displays
+        function updatePhotoTransform() {
+            const transform = `translate(calc(-50% + ${photoState.offsetX}px), calc(-50% + ${photoState.offsetY}px)) scale(${photoState.scale})`;
+            displayPhoto.style.transform = transform;
+            previewImg.style.transform = `translate(${photoState.offsetX}px, ${photoState.offsetY}px) scale(${photoState.scale})`;
+            previewImg.style.transformOrigin = 'center center';
+        }
+
+        function resetPhotoPosition() {
+            photoState.offsetX = 0;
+            photoState.offsetY = 0;
+            photoState.scale = 1;
+            editorZoomSlider.value = 100;
+            editorPosXSlider.value = 0;
+            editorPosYSlider.value = 0;
+            updateEditorPreview();
+            updatePhotoTransform();
+        }
+
+        // Editor slider events
+        editorZoomSlider.addEventListener('input', () => {
+            photoState.scale = editorZoomSlider.value / 100;
+            updateEditorPreview();
+        });
+
+        editorPosXSlider.addEventListener('input', () => {
+            photoState.offsetX = parseInt(editorPosXSlider.value);
+            updateEditorPreview();
+        });
+
+        editorPosYSlider.addEventListener('input', () => {
+            photoState.offsetY = parseInt(editorPosYSlider.value);
+            updateEditorPreview();
+        });
+
+        // Editor buttons
+        editPhotoBtn.addEventListener('click', openPhotoEditor);
+        photoEditorClose.addEventListener('click', closePhotoEditor);
+        editorResetBtn.addEventListener('click', resetPhotoPosition);
+
+        editorConfirmBtn.addEventListener('click', () => {
+            updatePhotoTransform();
+            closePhotoEditor();
+        });
+
+        // Close modal when clicking outside
+        photoEditorModal.addEventListener('click', (e) => {
+            if (e.target === photoEditorModal) {
+                closePhotoEditor();
+            }
+        });
+
+        // ========== SECTION TOGGLES ==========
+        const wakeEnabled = document.getElementById('wakeEnabled');
+        const burialEnabled = document.getElementById('burialEnabled');
+        const wakeBlock = document.getElementById('wakeBlock');
+        const burialBlock = document.getElementById('burialBlock');
+        const wakeSection = document.getElementById('wakeSection');
+        const burialSection = document.getElementById('burialSection');
+
+        wakeEnabled.addEventListener('change', () => {
+            const inputs = wakeSection.querySelectorAll('.input-group');
+            inputs.forEach(input => {
+                input.style.opacity = wakeEnabled.checked ? '1' : '0.5';
+                input.style.pointerEvents = wakeEnabled.checked ? 'auto' : 'none';
+            });
+            wakeBlock.classList.toggle('hidden', !wakeEnabled.checked);
+        });
+
+        burialEnabled.addEventListener('change', () => {
+            const inputs = burialSection.querySelectorAll('.input-group');
+            const cremationToggle = burialSection.querySelector('.cremation-toggle');
+            inputs.forEach(input => {
+                input.style.opacity = burialEnabled.checked ? '1' : '0.5';
+                input.style.pointerEvents = burialEnabled.checked ? 'auto' : 'none';
+            });
+            cremationToggle.style.opacity = burialEnabled.checked ? '1' : '0.5';
+            cremationToggle.style.pointerEvents = burialEnabled.checked ? 'auto' : 'none';
+            burialBlock.classList.toggle('hidden', !burialEnabled.checked);
+        });
+
+        // ========== CREMATION MODE ==========
+        const cremationMode = document.getElementById('cremationMode');
+        const burialIcon = document.getElementById('burialIcon');
+        const burialTitle = document.getElementById('burialTitle');
+        const displayBurialIcon = document.getElementById('displayBurialIcon');
+        const displayBurialTitle = document.getElementById('displayBurialTitle');
+
+        cremationMode.addEventListener('change', () => {
+            if (cremationMode.checked) {
+                burialIcon.className = 'fas fa-fire';
+                burialTitle.textContent = 'Cremação';
+                displayBurialIcon.className = 'fas fa-fire';
+                displayBurialTitle.textContent = 'Cerimônia de Cremação';
+            } else {
+                burialIcon.className = 'fas fa-cross';
+                burialTitle.textContent = 'Sepultamento';
+                displayBurialIcon.className = 'fas fa-monument';
+                displayBurialTitle.textContent = 'Sepultamento';
+            }
+        });
+
+        // ========== PHRASE SUGGESTIONS ==========
+        const phraseBtns = document.querySelectorAll('.phrase-btn');
+        const messageInput = document.getElementById('messageInput');
+        const displayMessage = document.getElementById('displayMessage');
+
+        phraseBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const phrase = btn.dataset.phrase;
+                messageInput.value = phrase;
+                displayMessage.textContent = phrase;
+            });
+        });
+
+        // ========== LOCATION PRESETS ==========
+        const wakePresets = document.getElementById('wakePresets');
+        const burialPresets = document.getElementById('burialPresets');
+
+        // Wake presets
+        wakePresets.querySelectorAll('.location-preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active from all
+                wakePresets.querySelectorAll('.location-preset-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const location = btn.dataset.location;
+                const address = btn.dataset.address;
+
+                // Only auto-fill if not "Outro"
+                if (location !== 'Personalizado') {
+                    document.getElementById('wakeLocationInput').value = location;
+                    document.getElementById('wakeAddressInput').value = address;
+                    document.getElementById('displayWakeLocation').textContent = location;
+                    document.getElementById('displayWakeAddress').textContent = address;
+                }
+            });
+        });
+
+        // Burial presets
+        burialPresets.querySelectorAll('.location-preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active from all
+                burialPresets.querySelectorAll('.location-preset-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const location = btn.dataset.location;
+                const address = btn.dataset.address;
+
+                // Only auto-fill if not "Outro"
+                if (location !== 'Personalizado') {
+                    document.getElementById('burialLocationInput').value = location;
+                    document.getElementById('burialAddressInput').value = address;
+                    document.getElementById('displayBurialLocation').textContent = location;
+                    document.getElementById('displayBurialAddress').textContent = address;
+                }
+            });
+        });
+
+        // ========== THEME SWITCHING ==========
+        function setTheme(themeName) {
+            const noteCard = document.getElementById('captureArea');
+            const themes = ['theme-sereno', 'theme-solene', 'theme-floral', 'theme-classico', 'theme-moderno', 'theme-cortel'];
+
+            themes.forEach(t => noteCard.classList.remove(t));
+            noteCard.classList.add(themeName);
+
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-theme="${themeName}"]`).classList.add('active');
+
+            // Save preference
+            localStorage.setItem('preferredTheme', themeName);
+        }
+
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('preferredTheme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            }
+            adjustNameSize();
+        });
+
+        // ========== GENERATE IMAGE BLOB ==========
+        async function generateImageBlob() {
+            const element = document.getElementById('captureArea');
+            await document.fonts.ready;
+
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                backgroundColor: null,
+                logging: false,
+                useCORS: true,
+                allowTaint: true
+            });
+
+            return new Promise(resolve => {
+                canvas.toBlob(blob => resolve(blob), 'image/png');
+            });
+        }
+
+        // ========== DOWNLOAD FUNCTION ==========
+        async function downloadNote() {
+            const button = document.getElementById('downloadBtn');
+            const originalHTML = button.innerHTML;
+
+            // Show loading state
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+
+            try {
+                const blob = await generateImageBlob();
+
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const name = document.getElementById('nameInput').value || 'nota-condolencias';
+                const safeName = name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-').toLowerCase();
+                link.download = `nota-${safeName}-${Date.now()}.png`;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+
+                // Success feedback
+                button.innerHTML = '<i class="fas fa-check"></i> Baixado!';
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }, 2500);
+
+            } catch (error) {
+                console.error('Download failed:', error);
+                button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }, 2500);
+            }
+        }
+
+        // ========== SHARE FUNCTION ==========
+        async function shareNote() {
+            const button = document.getElementById('shareBtn');
+            const originalHTML = button.innerHTML;
+
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+
+            try {
+                const blob = await generateImageBlob();
+                const name = document.getElementById('nameInput').value || 'nota-condolencias';
+                const safeName = name.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-').toLowerCase();
+                const file = new File([blob], `nota-${safeName}.png`, { type: 'image/png' });
+
+                // Check if Web Share API is available with file sharing
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Nota de Condolências',
+                        text: `Nota de pesar - ${name}`
+                    });
+                    button.innerHTML = '<i class="fas fa-check"></i> Compartilhado!';
+                } else {
+                    // Fallback: download the image
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = `nota-${safeName}-${Date.now()}.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                    button.innerHTML = '<i class="fas fa-check"></i> Baixado!';
+                }
+
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }, 2500);
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    // User cancelled sharing
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                } else {
+                    console.error('Share failed:', error);
+                    button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erro';
+                    setTimeout(() => {
+                        button.innerHTML = originalHTML;
+                        button.disabled = false;
+                    }, 2500);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
