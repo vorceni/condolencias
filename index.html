@@ -964,10 +964,18 @@
 
         .theme-cortel .photo-frame {
             display: none;
+            background: transparent !important;
         }
 
         .theme-cortel.has-photo .photo-frame {
             display: block;
+            background: transparent !important;
+        }
+
+        .theme-cortel .photo-frame-inner {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
         }
 
         .theme-cortel.has-photo .mourning-ribbon {
@@ -1159,6 +1167,7 @@
             position: relative;
             border-radius: 50%;
             overflow: hidden;
+            background: transparent;
         }
 
         .photo-frame-inner {
@@ -1166,9 +1175,9 @@
             height: 100%;
             border-radius: 50%;
             border: 4px solid var(--bg-secondary);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
             overflow: hidden;
             position: relative;
+            background: transparent;
         }
 
         .photo-frame img {
