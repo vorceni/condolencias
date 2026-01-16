@@ -543,6 +543,114 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
+        /* Photo Format Selector */
+        .photo-format-selector {
+            width: 100%;
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .format-selector-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.9;
+        }
+
+        .format-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .format-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .format-option input[type="radio"] {
+            display: none;
+        }
+
+        .format-option:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .format-option.active {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .format-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .format-preview {
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .format-preview-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .format-preview-oval-v {
+            width: 18px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .format-preview-oval-h {
+            width: 28px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .format-preview-rectangle {
+            width: 28px;
+            height: 18px;
+            border-radius: 4px;
+        }
+
+        .format-preview-square {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+        }
+
+        .format-option span {
+            font-size: 9px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+
         /* Phrase Suggestions */
         .phrase-suggestions {
             display: flex;
@@ -1081,6 +1189,64 @@
             /* min-width/height removed to allow full freedom */
         }
 
+        /* Photo Frame Format Variations */
+        .photo-frame.format-circle {
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+        }
+
+        .photo-frame.format-circle .photo-frame-inner {
+            border-radius: 50%;
+        }
+
+        .photo-frame.format-oval-v {
+            width: 320px;
+            height: 400px;
+            border-radius: 50%;
+        }
+
+        .photo-frame.format-oval-v .photo-frame-inner {
+            border-radius: 50%;
+        }
+
+        .photo-frame.format-oval-h {
+            width: 500px;
+            height: 350px;
+            border-radius: 50%;
+        }
+
+        .photo-frame.format-oval-h .photo-frame-inner {
+            border-radius: 50%;
+        }
+
+        .photo-frame.format-rectangle {
+            width: 550px;
+            height: 350px;
+            border-radius: 20px;
+        }
+
+        .photo-frame.format-rectangle .photo-frame-inner {
+            border-radius: 16px;
+        }
+
+        .photo-frame.format-square {
+            width: 400px;
+            height: 400px;
+            border-radius: 20px;
+        }
+
+        .photo-frame.format-square .photo-frame-inner {
+            border-radius: 16px;
+        }
+
+        /* Photo Frame - Smooth transitions between formats */
+        .photo-frame,
+        .photo-frame-inner {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+
         .deceased-name {
             font-family: 'Playfair Display', serif;
             font-size: 56px;
@@ -1429,6 +1595,54 @@
                         <button type="button" class="edit-photo-btn" id="editPhotoBtn">
                             <i class="fas fa-crop-alt"></i> Ajustar Foto
                         </button>
+
+                        <!-- Photo Format Selector -->
+                        <div class="photo-format-selector">
+                            <div class="format-selector-label">
+                                <i class="fas fa-shapes"></i> Formato da Foto
+                            </div>
+                            <div class="format-options">
+                                <label class="format-option active" data-format="circle"
+                                    title="Círculo - Ideal para fotos quadradas">
+                                    <input type="radio" name="photoFormat" value="circle" checked>
+                                    <div class="format-icon">
+                                        <div class="format-preview format-preview-circle"></div>
+                                    </div>
+                                    <span>Círculo</span>
+                                </label>
+                                <label class="format-option" data-format="oval-v"
+                                    title="Oval Vertical - Ideal para fotos retrato">
+                                    <input type="radio" name="photoFormat" value="oval-v">
+                                    <div class="format-icon">
+                                        <div class="format-preview format-preview-oval-v"></div>
+                                    </div>
+                                    <span>Oval V</span>
+                                </label>
+                                <label class="format-option" data-format="oval-h"
+                                    title="Oval Horizontal - Ideal para fotos paisagem">
+                                    <input type="radio" name="photoFormat" value="oval-h">
+                                    <div class="format-icon">
+                                        <div class="format-preview format-preview-oval-h"></div>
+                                    </div>
+                                    <span>Oval H</span>
+                                </label>
+                                <label class="format-option" data-format="rectangle"
+                                    title="Retângulo - Máxima flexibilidade">
+                                    <input type="radio" name="photoFormat" value="rectangle">
+                                    <div class="format-icon">
+                                        <div class="format-preview format-preview-rectangle"></div>
+                                    </div>
+                                    <span>Retâng.</span>
+                                </label>
+                                <label class="format-option" data-format="square" title="Quadrado - Visual moderno">
+                                    <input type="radio" name="photoFormat" value="square">
+                                    <div class="format-icon">
+                                        <div class="format-preview format-preview-square"></div>
+                                    </div>
+                                    <span>Quadrado</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2008,6 +2222,47 @@
                 closePhotoEditor();
             }
         });
+
+        // ========== PHOTO FORMAT SELECTOR ==========
+        const formatOptions = document.querySelectorAll('.format-option');
+        const photoFrame = document.querySelector('.photo-frame');
+        let currentFormat = 'circle'; // Default format
+
+        // Function to set photo format
+        function setPhotoFormat(format) {
+            // Remove all format classes
+            photoFrame.classList.remove('format-circle', 'format-oval-v', 'format-oval-h', 'format-rectangle', 'format-square');
+
+            // Add new format class
+            photoFrame.classList.add(`format-${format}`);
+
+            // Update current format
+            currentFormat = format;
+
+            // Update active state on format buttons
+            formatOptions.forEach(option => {
+                if (option.dataset.format === format) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+        }
+
+        // Add click event listeners to format options
+        formatOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const format = option.dataset.format;
+                setPhotoFormat(format);
+
+                // Check the radio button
+                option.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+
+        // Initialize with default format (circle)
+        setPhotoFormat('circle');
+
 
         // ========== SECTION TOGGLES ==========
         const wakeEnabled = document.getElementById('wakeEnabled');
