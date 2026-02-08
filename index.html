@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Nota de Condolências</title>
+    <meta name="description"
+        content="Crie notas de condolências personalizadas com foto, dados do velório e sepultamento. Baixe como imagem.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Control Panel -->
+        <aside class="controls">
+            <div class="panel-top-tools">
+                <div class="panel-top-tools-label"><i class="fas fa-moon"></i> Modo Escuro</div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <h1><i class="fas fa-dove"></i> Nota de Condolências</h1>
+            <p class="subtitle">Crie uma nota personalizada e baixe como imagem</p>
+            <div class="guided-entry">
+                <button type="button" class="guided-mode-btn" id="guidedModeBtn">
+                    <i class="fas fa-route"></i>
+                    Modo guiado
+                </button>
+                <p class="guided-entry-hint">Uma pergunta por vez para preencher com facilidade.</p>
+            </div>
+
+            <!-- Photo Upload Section -->
+            <div class="section accordion-section is-open" data-accordion id="photoSection">
+                <button type="button" class="section-accordion-toggle" data-accordion-toggle aria-expanded="true">
+                    <span class="section-title"><i class="fas fa-camera"></i> Foto do Falecido</span>
+                    <i class="fas fa-chevron-down accordion-chevron"></i>
+                </button>
+                <div class="section-content" data-accordion-content>
+                    <div class="photo-upload-container">
+                        <label class="photo-upload" id="photoDropTarget">
+                            <input type="file" id="photoInput" accept="image/*">
+                            <div class="photo-preview" id="photoPreview">
+                                <i class="fas fa-user-plus"></i>
+                                <span class="photo-upload-text">Adicionar foto</span>
+                                <small class="photo-upload-subtext">Arraste ou cole (Ctrl+V)</small>
+                                <img id="previewImg" src="" alt="Foto">
+                            </div>
+                        </label>
+                        <div class="photo-controls" id="photoControls">
+                            <div class="photo-actions-row">
+                                <button type="button" class="edit-photo-btn" id="editPhotoBtn">
+                                    <i class="fas fa-crop-alt"></i> Ajustar Foto
+                                </button>
+                                <button type="button" class="remove-photo-btn" id="removePhotoBtn">
+                                    <i class="fas fa-trash"></i> Remover Foto
+                                </button>
+                            </div>
+
+                            <!-- Photo Format Selector -->
+                            <div class="photo-format-selector">
+                                <div class="format-selector-label">
+                                    <i class="fas fa-shapes"></i> Formato da Foto
+                                </div>
+                                <div class="format-options">
+                                    <label class="format-option active" data-format="circle"
+                                        title="Círculo - Ideal para fotos quadradas">
+                                        <input type="radio" name="photoFormat" value="circle" checked>
+                                        <div class="format-icon">
+                                            <div class="format-preview format-preview-circle"></div>
+                                        </div>
+                                        <span>Círculo</span>
+                                    </label>
+                                    <label class="format-option" data-format="oval-v"
+                                        title="Oval Vertical - Ideal para fotos retrato">
+                                        <input type="radio" name="photoFormat" value="oval-v">
+                                        <div class="format-icon">
+                                            <div class="format-preview format-preview-oval-v"></div>
+                                        </div>
+                                        <span>Oval V</span>
+                                    </label>
+                                    <label class="format-option" data-format="oval-h"
+                                        title="Oval Horizontal - Ideal para fotos paisagem">
+                                        <input type="radio" name="photoFormat" value="oval-h">
+                                        <div class="format-icon">
+                                            <div class="format-preview format-preview-oval-h"></div>
+                                        </div>
+                                        <span>Oval H</span>
+                                    </label>
+                                    <label class="format-option" data-format="rectangle"
+                                        title="Retângulo - Máxima flexibilidade">
+                                        <input type="radio" name="photoFormat" value="rectangle">
+                                        <div class="format-icon">
+                                            <div class="format-preview format-preview-rectangle"></div>
+                                        </div>
+                                        <span>Retâng.</span>
+                                    </label>
+                                    <label class="format-option" data-format="square" title="Quadrado - Visual moderno">
+                                        <input type="radio" name="photoFormat" value="square">
+                                        <div class="format-icon">
+                                            <div class="format-preview format-preview-square"></div>
+                                        </div>
+                                        <span>Quadrado</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Info Section -->
+            <div class="section accordion-section is-open" data-accordion id="personalSection">
+                <button type="button" class="section-accordion-toggle" data-accordion-toggle aria-expanded="true">
+                    <span class="section-title"><i class="fas fa-user"></i> Informações Pessoais</span>
+                    <i class="fas fa-chevron-down accordion-chevron"></i>
+                </button>
+                <div class="section-content" data-accordion-content>
+                    <div class="input-group">
+                        <label><i class="fas fa-signature"></i> Nome Completo</label>
+                        <input type="text" id="nameInput" placeholder="Nome do falecido" value="João da Silva">
+                    </div>
+                    <div class="row">
+                        <div class="input-group">
+                            <label><i class="fas fa-star"></i> Nascimento</label>
+                            <input type="date" id="birthInput" value="1945-03-15">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-heart"></i> Falecimento</label>
+                            <input type="date" id="deathInput" value="2026-01-05">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wake Info Section -->
+            <div class="section accordion-section is-open" id="wakeSection" data-accordion>
+                <div class="section-header section-header-accordion">
+                    <button type="button" class="section-accordion-toggle" data-accordion-toggle aria-expanded="true">
+                        <span class="section-title"><i class="fas fa-church"></i> Velório</span>
+                        <i class="fas fa-chevron-down accordion-chevron"></i>
+                    </button>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="wakeEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="section-content" data-accordion-content>
+                    <div class="location-presets" id="wakePresets">
+                        <button type="button" class="location-preset-btn" data-location="Cemitério do Araçá"
+                            data-address="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">Araçá</button>
+                        <button type="button" class="location-preset-btn" data-location="Cemitério Vila Nova Cachoeirinha"
+                            data-address="Av. João Marcelino Branco, 345 - Vila Nova Cachoeirinha, SP">Vila N.
+                            Cachoeirinha</button>
+                        <button type="button" class="location-preset-btn" data-location="Cemitério Santo Amaro"
+                            data-address="R. Min. Roberto Cardoso Alves, 186 - Santo Amaro, SP">Santo Amaro</button>
+                        <button type="button" class="location-preset-btn" data-location="Cemitério Dom Bosco"
+                            data-address="Estrada dos Pinheirinhos, 860 - Perus, São Paulo - SP">Dom Bosco</button>
+                        <button type="button" class="location-preset-btn" data-location="Cemitério São Paulo"
+                            data-address="R. Cardeal Arcoverde, 1250 - Pinheiros, SP">São Paulo</button>
+                        <button type="button" class="location-preset-btn active" data-location="Personalizado"
+                            data-address="">Outro</button>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Local</label>
+                        <input type="text" id="wakeLocationInput" placeholder="Nome do local..."
+                            value="Cemitério do Araçá">
+                    </div>
+                    <div class="row">
+                        <div class="input-group">
+                            <label><i class="fas fa-calendar-alt"></i> Data</label>
+                            <input type="date" id="wakeDateInput" value="2026-01-07">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-clock"></i> Horário</label>
+                            <input type="text" id="wakeTimeInput" placeholder="Das 08h às 14h" value="12:00 às 16:00">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-home"></i> Endereço</label>
+                        <input type="text" id="wakeAddressInput" placeholder="Rua, número, bairro..."
+                            value="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">
+                    </div>
+                </div>
+            </div>
+
+            <div class="between-sections-action">
+                <button type="button" class="quick-copy-btn" id="copyWakeToBurialBtn">
+                    Copiar velório > sepultamento
+                </button>
+            </div>
+
+            <!-- Burial Info Section -->
+            <div class="section accordion-section is-open" id="burialSection" data-accordion>
+                <div class="section-header section-header-accordion">
+                    <button type="button" class="section-accordion-toggle" data-accordion-toggle aria-expanded="true">
+                        <span class="section-title"><i class="fas fa-cross" id="burialIcon"></i> <span
+                                id="burialTitle">Sepultamento</span></span>
+                        <i class="fas fa-chevron-down accordion-chevron"></i>
+                    </button>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="burialEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="section-content" data-accordion-content>
+                    <div class="cremation-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="cremationMode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span><i class="fas fa-fire"></i> Modo Cremação</span>
+                    </div>
+                    <div class="location-presets" id="burialPresets">
+                        <button type="button" class="location-preset-btn" data-location="Cemitério do Araçá"
+                            data-address="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">Araçá</button>
+                        <button type="button" class="location-preset-btn" data-location="Cemitério Vila Nova Cachoeirinha"
+                            data-address="Av. João Marcelino Branco, 345 - Vila Nova Cachoeirinha, SP">V.N.
+                            Cachoeirinha</button>
+                        <button type="button" class="location-preset-btn" data-location="Cemitério Santo Amaro"
+                            data-address="R. Min. Roberto Cardoso Alves, 186 - Santo Amaro, SP">Santo Amaro</button>
+                        <button type="button" class="location-preset-btn" data-location="Cemitério Dom Bosco"
+                            data-address="Estrada dos Pinheirinhos, 860 - Perus, São Paulo - SP">Dom Bosco</button>
+                        <button type="button" class="location-preset-btn" data-location="Cemitério São Paulo"
+                            data-address="R. Cardeal Arcoverde, 1250 - Pinheiros, SP">São Paulo</button>
+                        <button type="button" class="location-preset-btn active" data-location="Personalizado"
+                            data-address="">Outro</button>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Local</label>
+                        <input type="text" id="burialLocationInput" placeholder="Nome do local..."
+                            value="Cemitério do Araçá">
+                    </div>
+                    <div class="row">
+                        <div class="input-group">
+                            <label><i class="fas fa-calendar-alt"></i> Data</label>
+                            <input type="date" id="burialDateInput" value="2026-01-07">
+                        </div>
+                        <div class="input-group">
+                            <label><i class="fas fa-clock"></i> Horário</label>
+                            <input type="text" id="burialTimeInput" placeholder="Às 15h" value="14:30 hs">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-home"></i> Endereço</label>
+                        <input type="text" id="burialAddressInput" placeholder="Rua, número, bairro..."
+                            value="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Selection -->
+            <div class="section" style="display: none;">
+                <div class="section-title"><i class="fas fa-palette"></i> Escolha o Tema</div>
+                <div class="themes">
+                    <button class="theme-btn active" data-theme="theme-cortel" onclick="setTheme('theme-cortel')">
+                        <span class="color-dot" style="background: linear-gradient(135deg, #ffffff, #002B49);"></span>
+                        Cortel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="download-btn" id="downloadBtn">
+                    <i class="fas fa-download"></i>
+                    Baixar
+                </button>
+                <button class="copy-btn" id="copyImageBtn">
+                    <i class="fas fa-copy"></i>
+                    Copiar imagem
+                </button>
+            </div>
+            <div class="action-buttons action-buttons-secondary">
+                <button class="save-btn" id="saveHistoryBtn">
+                    <i class="fas fa-save"></i>
+                    Salvar no histórico
+                </button>
+            </div>
+            <div class="action-buttons action-buttons-secondary">
+                <button class="history-btn panel-btn" id="historyBtn">
+                    <i class="fas fa-history"></i>
+                    Histórico
+                </button>
+                <button class="reset-btn panel-btn" id="resetBtn">
+                    <i class="fas fa-undo"></i>
+                    Reset
+                </button>
+            </div>
+        </aside>
+
+        <!-- Preview Container -->
+        <main class="preview-container">
+            <div class="preview-stage" id="previewStage">
+                <div id="captureArea" class="note-card theme-cortel">
+                <!-- Cortel Corner Decorations -->
+                <div class="cortel-corner-tr"></div>
+                <div class="cortel-corner-bl"></div>
+
+                <div class="header-symbol"><i class="fas fa-dove"></i></div>
+                <div class="condolences-title">Nota de Pesar</div>
+
+                <!-- Cortel Special Title -->
+                <div class="cortel-title">JUNTOS, NOS DESPEDIMOS E<br>CELEBRAMOS A MEMÓRIA DE:</div>
+
+                <!-- Mourning Ribbon (shown in Cortel when no photo) -->
+                <div class="mourning-ribbon">
+                    <img src="luto.png" alt="Símbolo de luto">
+                </div>
+
+                <div class="photo-frame">
+                    <div class="photo-frame-inner">
+                        <img id="displayPhoto"
+                            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e2e8f0'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%2394a3b8'/%3E%3Cellipse cx='50' cy='80' rx='28' ry='22' fill='%2394a3b8'/%3E%3C/svg%3E"
+                            alt="Foto do falecido">
+                    </div>
+                </div>
+
+                <div class="deceased-name" id="displayName">João da Silva</div>
+                <div class="dates">
+                    <span class="date-star">✦</span> <span id="displayBirth">15/03/1945</span> &nbsp;&nbsp;&nbsp; <span
+                        class="date-cross">✝</span> <span id="displayDeath">05/01/2026</span>
+                </div>
+
+                <div class="divider-ornament">
+                    <i class="fas fa-cross"></i>
+                </div>
+
+                <div class="details-section">
+                    <div class="detail-block" id="wakeBlock">
+                        <div class="detail-block-title"><i class="fas fa-dove"></i> Velório</div>
+                        <div class="detail-location" id="displayWakeLocation">Cemitério do Araçá</div>
+                        <div class="detail-info-grid">
+                            <div class="detail-info-item">
+                                <span class="detail-info-label"><i class="fas fa-calendar-alt"></i> Data</span>
+                                <span class="detail-info-value" id="displayWakeDate">07/01/2026</span>
+                            </div>
+                            <div class="detail-info-item">
+                                <span class="detail-info-label"><i class="fas fa-clock"></i> Horário</span>
+                                <span class="detail-info-value" id="displayWakeTime">12:00 às 16:00</span>
+                            </div>
+                            <div class="detail-info-item full-width">
+                                <span class="detail-info-label"><i class="fas fa-map-marker-alt"></i> Endereço</span>
+                                <span class="detail-info-value" id="displayWakeAddress">Av. Dr. Arnaldo, 666 - Cerqueira
+                                    César, SP</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-block" id="burialBlock">
+                        <div class="detail-block-title"><i class="fas fa-monument" id="displayBurialIcon"></i> <span
+                                id="displayBurialTitle">Sepultamento</span></div>
+                        <div class="detail-location" id="displayBurialLocation">Cemitério do Araçá</div>
+                        <div class="detail-info-grid">
+                            <div class="detail-info-item">
+                                <span class="detail-info-label"><i class="fas fa-calendar-alt"></i> Data</span>
+                                <span class="detail-info-value" id="displayBurialDate">07/01/2026</span>
+                            </div>
+                            <div class="detail-info-item">
+                                <span class="detail-info-label"><i class="fas fa-clock"></i> Horário</span>
+                                <span class="detail-info-value" id="displayBurialTime">14:30 hs</span>
+                            </div>
+                            <div class="detail-info-item full-width">
+                                <span class="detail-info-label"><i class="fas fa-map-marker-alt"></i> Endereço</span>
+                                <span class="detail-info-value" id="displayBurialAddress">Av. Dr. Arnaldo, 666 -
+                                    Cerqueira César, SP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Message - REMOVED -->
+
+                <div class="footer-note">
+                    <i class="fas fa-heart"></i> Que descanse em paz
+                </div>
+
+                <!-- Cortel Flowers Contact Pill -->
+                <div class="flowers-contact">
+                    <div class="flowers-contact-text">Para homenagear com flores:</div>
+                    <div class="flowers-contact-number">
+                        <i class="fab fa-whatsapp"></i> 11 98942-1434
+                    </div>
+                </div>
+
+                <div class="company-logo">
+                    <img src="logo-cortel.png" alt="Cortel São Paulo">
+                </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Guided Mode Modal -->
+    <div class="guided-modal" id="guidedModal">
+        <div class="guided-panel">
+            <div class="guided-header">
+                <h3><i class="fas fa-route"></i> Modo guiado</h3>
+                <button type="button" class="guided-close-btn" id="guidedCloseBtn" aria-label="Fechar modo guiado">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="guided-subtitle">Responda as perguntas e clique em próximo até finalizar.</p>
+            <div class="guided-progress-wrap">
+                <div class="guided-progress-text" id="guidedProgressText">Etapa 1 de 1</div>
+                <div class="guided-progress-track">
+                    <div class="guided-progress-bar" id="guidedProgressBar"></div>
+                </div>
+            </div>
+            <div class="guided-validation-message" id="guidedValidationMessage" role="alert" aria-live="polite"></div>
+
+            <div class="guided-step-container">
+                <section class="guided-step" data-guided-step="photo">
+                    <h4>Deseja inserir uma foto do falecido (opcional)?</h4>
+                    <p class="guided-step-help">Você já pode ajustar zoom e posição aqui mesmo.</p>
+                    <div class="guided-photo-actions">
+                        <label class="guided-upload-btn" for="guidedPhotoInput">
+                            <i class="fas fa-image"></i> Inserir foto
+                        </label>
+                        <input type="file" id="guidedPhotoInput" accept="image/*">
+                        <button type="button" class="guided-link-btn" id="guidedRemovePhotoBtn">
+                            <i class="fas fa-trash"></i> Remover foto
+                        </button>
+                    </div>
+                    <div class="guided-photo-live-preview" id="guidedPhotoLivePreview">
+                        <div class="guided-photo-live-label">Prévia da foto em tempo real</div>
+                        <div class="guided-photo-live-frame format-circle" id="guidedPhotoLiveFrame">
+                            <img id="guidedPhotoLiveImg"
+                                src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e2e8f0'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%2394a3b8'/%3E%3Cellipse cx='50' cy='80' rx='28' ry='22' fill='%2394a3b8'/%3E%3C/svg%3E"
+                                alt="Prévia da foto no modo guiado">
+                        </div>
+                    </div>
+                    <div class="guided-photo-adjust">
+                        <div class="guided-slider-control">
+                            <label for="guidedZoomSlider"><i class="fas fa-search-plus"></i> Zoom</label>
+                            <input type="range" id="guidedZoomSlider" class="guided-range-slider" min="10" max="300"
+                                value="100">
+                        </div>
+                        <div class="guided-slider-control">
+                            <label for="guidedPosXSlider"><i class="fas fa-arrows-alt-h"></i> Posição horizontal</label>
+                            <input type="range" id="guidedPosXSlider" class="guided-range-slider" min="-100" max="100"
+                                value="0">
+                        </div>
+                        <div class="guided-slider-control">
+                            <label for="guidedPosYSlider"><i class="fas fa-arrows-alt-v"></i> Posição vertical</label>
+                            <input type="range" id="guidedPosYSlider" class="guided-range-slider" min="-100" max="100"
+                                value="0">
+                        </div>
+                    </div>
+                    <button type="button" class="guided-link-btn guided-photo-editor-btn" id="guidedOpenEditorBtn">
+                        <i class="fas fa-crop-alt"></i> Ajuste avançado da foto
+                    </button>
+                    <p class="guided-photo-status" id="guidedPhotoStatus">Nenhuma foto adicionada.</p>
+                </section>
+
+                <section class="guided-step" data-guided-step="name">
+                    <h4>Qual é o nome completo do falecido?</h4>
+                    <p class="guided-step-help">Esse campo é obrigatório.</p>
+                    <input type="text" class="guided-field-input" id="guidedNameInput"
+                        placeholder="Digite o nome completo">
+                </section>
+
+                <section class="guided-step" data-guided-step="birth">
+                    <h4>Qual a data de nascimento?</h4>
+                    <p class="guided-step-help">Campo obrigatório.</p>
+                    <input type="date" class="guided-field-input" id="guidedBirthInput">
+                </section>
+
+                <section class="guided-step" data-guided-step="death">
+                    <h4>Qual a data de falecimento?</h4>
+                    <p class="guided-step-help">Campo obrigatório.</p>
+                    <input type="date" class="guided-field-input" id="guidedDeathInput">
+                </section>
+
+                <section class="guided-step" data-guided-step="wake-enabled">
+                    <h4>Vai ter velório?</h4>
+                    <div class="guided-choice-group">
+                        <label class="guided-choice-option">
+                            <input type="radio" name="guidedWakeEnabled" value="yes">
+                            <span>Sim</span>
+                        </label>
+                        <label class="guided-choice-option">
+                            <input type="radio" name="guidedWakeEnabled" value="no">
+                            <span>Não</span>
+                        </label>
+                    </div>
+                    <p class="guided-step-help">Se escolher "não", as perguntas de velório serão puladas.</p>
+                </section>
+
+                <section class="guided-step" data-guided-step="wake-location">
+                    <h4>Qual é o local do velório?</h4>
+                    <p class="guided-step-help">Escolha um local pré-definido para autopreencher local e endereço (você pode editar depois).</p>
+                    <div class="guided-location-presets" id="guidedWakePresetButtons">
+                        <button type="button" class="guided-location-preset" data-location="Cemitério do Araçá"
+                            data-address="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">Araçá</button>
+                        <button type="button" class="guided-location-preset" data-location="Cemitério Vila Nova Cachoeirinha"
+                            data-address="Av. João Marcelino Branco, 345 - Vila Nova Cachoeirinha, SP">Cachoeirinha</button>
+                        <button type="button" class="guided-location-preset" data-location="Cemitério Santo Amaro"
+                            data-address="R. Min. Roberto Cardoso Alves, 186 - Santo Amaro, SP">Santo Amaro</button>
+                        <button type="button" class="guided-location-preset" data-location="Cemitério Dom Bosco"
+                            data-address="Estrada dos Pinheirinhos, 860 - Perus, São Paulo - SP">Dom Bosco</button>
+                        <button type="button" class="guided-location-preset" data-location="Cemitério São Paulo"
+                            data-address="R. Cardeal Arcoverde, 1250 - Pinheiros, SP">São Paulo</button>
+                    </div>
+                    <p class="guided-preset-feedback" id="guidedWakePresetHint"></p>
+                    <input type="text" class="guided-field-input" id="guidedWakeLocationInput"
+                        placeholder="Ex.: Cemitério do Araçá">
+                </section>
+
+                <section class="guided-step" data-guided-step="wake-date">
+                    <h4>Qual é a data do velório?</h4>
+                    <input type="date" class="guided-field-input" id="guidedWakeDateInput">
+                </section>
+
+                <section class="guided-step" data-guided-step="wake-time">
+                    <h4>Qual é o horário do velório?</h4>
+                    <input type="text" class="guided-field-input" id="guidedWakeTimeInput"
+                        placeholder="Ex.: 12:00 às 16:00">
+                </section>
+
+                <section class="guided-step" data-guided-step="wake-address">
+                    <h4>Qual é o endereço do velório?</h4>
+                    <input type="text" class="guided-field-input" id="guidedWakeAddressInput"
+                        placeholder="Rua, número, bairro">
+                </section>
+
+                <section class="guided-step" data-guided-step="burial-enabled">
+                    <h4>Vai ter sepultamento?</h4>
+                    <div class="guided-choice-group">
+                        <label class="guided-choice-option">
+                            <input type="radio" name="guidedBurialEnabled" value="yes">
+                            <span>Sim</span>
+                        </label>
+                        <label class="guided-choice-option">
+                            <input type="radio" name="guidedBurialEnabled" value="no">
+                            <span>Não</span>
+                        </label>
+                    </div>
+                    <p class="guided-step-help">Se escolher "não", as perguntas de sepultamento serão puladas.</p>
+                </section>
+
+                <section class="guided-step" data-guided-step="burial-location">
+                    <h4>Qual é o local do sepultamento?</h4>
+                    <p class="guided-step-help">Você também pode usar os mesmos dados do velório com um clique.</p>
+                    <div class="guided-inline-actions">
+                        <button type="button" class="guided-link-btn" id="guidedCopyWakeInfoBtn">
+                            <i class="fas fa-clone"></i> Copiar dados do velório
+                        </button>
+                    </div>
+                    <div class="guided-location-presets" id="guidedBurialPresetButtons">
+                        <button type="button" class="guided-location-preset" data-location="Cemitério do Araçá"
+                            data-address="Av. Dr. Arnaldo, 666 - Cerqueira César, SP">Araçá</button>
+                        <button type="button" class="guided-location-preset" data-location="Cemitério Vila Nova Cachoeirinha"
+                            data-address="Av. João Marcelino Branco, 345 - Vila Nova Cachoeirinha, SP">Cachoeirinha</button>
+                        <button type="button" class="guided-location-preset" data-location="Cemitério Santo Amaro"
+                            data-address="R. Min. Roberto Cardoso Alves, 186 - Santo Amaro, SP">Santo Amaro</button>
+                        <button type="button" class="guided-location-preset" data-location="Cemitério Dom Bosco"
+                            data-address="Estrada dos Pinheirinhos, 860 - Perus, São Paulo - SP">Dom Bosco</button>
+                        <button type="button" class="guided-location-preset" data-location="Cemitério São Paulo"
+                            data-address="R. Cardeal Arcoverde, 1250 - Pinheiros, SP">São Paulo</button>
+                    </div>
+                    <p class="guided-preset-feedback" id="guidedBurialPresetHint"></p>
+                    <input type="text" class="guided-field-input" id="guidedBurialLocationInput"
+                        placeholder="Ex.: Cemitério do Araçá">
+                </section>
+
+                <section class="guided-step" data-guided-step="burial-date">
+                    <h4>Qual é a data do sepultamento?</h4>
+                    <input type="date" class="guided-field-input" id="guidedBurialDateInput">
+                </section>
+
+                <section class="guided-step" data-guided-step="burial-time">
+                    <h4>Qual é o horário do sepultamento?</h4>
+                    <input type="text" class="guided-field-input" id="guidedBurialTimeInput"
+                        placeholder="Ex.: 14:30 hs">
+                </section>
+
+                <section class="guided-step" data-guided-step="burial-address">
+                    <h4>Qual é o endereço do sepultamento?</h4>
+                    <input type="text" class="guided-field-input" id="guidedBurialAddressInput"
+                        placeholder="Rua, número, bairro">
+                </section>
+
+                <section class="guided-step" data-guided-step="finish">
+                    <h4>Concluído. Deseja baixar ou copiar a imagem?</h4>
+                    <p class="guided-step-help">Você pode usar os botões abaixo agora mesmo.</p>
+                    <div class="guided-final-actions">
+                        <button type="button" class="guided-final-btn guided-final-download" id="guidedDownloadBtn">
+                            <i class="fas fa-download"></i> Baixar imagem
+                        </button>
+                        <button type="button" class="guided-final-btn guided-final-copy" id="guidedCopyBtn">
+                            <i class="fas fa-copy"></i> Copiar imagem
+                        </button>
+                    </div>
+                    <button type="button" class="guided-complete-btn" id="guidedFinishBtn">
+                        Voltar ao início
+                    </button>
+                </section>
+            </div>
+
+            <div class="guided-footer" id="guidedFooter">
+                <button type="button" class="guided-nav-btn guided-back-btn" id="guidedPrevBtn">Voltar</button>
+                <button type="button" class="guided-nav-btn guided-next-btn" id="guidedNextBtn">Próximo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Editor Modal -->
+    <div class="photo-editor-modal" id="photoEditorModal">
+        <div class="photo-editor-panel">
+            <div class="photo-editor-header">
+                <h3><i class="fas fa-crop-alt"></i> Ajustar Foto</h3>
+                <button class="photo-editor-close" id="photoEditorClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="photo-editor-preview" id="photoEditorPreview">
+                <img id="photoEditorImg" src="" alt="Foto para ajustar">
+            </div>
+            <div class="photo-editor-controls">
+                <div class="photo-editor-control">
+                    <label><i class="fas fa-search-plus"></i> Zoom</label>
+                    <input type="range" class="photo-editor-slider" id="editorZoomSlider" min="10" max="300"
+                        value="100">
+                </div>
+                <div class="photo-editor-control">
+                    <label><i class="fas fa-arrows-alt-h"></i> Posição Horizontal</label>
+                    <input type="range" class="photo-editor-slider" id="editorPosXSlider" min="-100" max="100"
+                        value="0">
+                </div>
+                <div class="photo-editor-control">
+                    <label><i class="fas fa-arrows-alt-v"></i> Posição Vertical</label>
+                    <input type="range" class="photo-editor-slider" id="editorPosYSlider" min="-100" max="100"
+                        value="0">
+                </div>
+            </div>
+            <div class="photo-editor-buttons">
+                <button class="photo-editor-btn photo-editor-btn-reset" id="editorResetBtn">
+                    <i class="fas fa-undo"></i> Redefinir
+                </button>
+                <button class="photo-editor-btn photo-editor-btn-confirm" id="editorConfirmBtn">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="history-modal" id="historyModal">
+        <div class="history-panel">
+            <div class="history-header">
+                <h3><i class="fas fa-history"></i> Histórico da Sessão</h3>
+                <button type="button" class="history-close" id="historyCloseBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="history-subtitle">As notas salvas aqui ficam disponíveis até fechar o navegador.</p>
+            <div class="history-actions">
+                <label class="history-select-all">
+                    <input type="checkbox" id="historySelectAll">
+                    <span>Selecionar todos</span>
+                </label>
+                <button type="button" class="history-delete-selected-btn" id="historyDeleteSelectedBtn" disabled>
+                    <i class="fas fa-trash"></i> Apagar selecionados
+                </button>
+            </div>
+            <div class="history-empty" id="historyEmpty">Nenhuma nota salva nesta sessão.</div>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
