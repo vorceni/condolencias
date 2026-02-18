@@ -5,7 +5,9 @@ const PHOTO_OFFSET_MAX = 100;
 const HISTORY_LIMIT = 20;
 const HISTORY_STORAGE_KEY = "condolencias.history.v1";
 const DARK_MODE_STORAGE_KEY = "condolencias.darkmode.v1";
+const DEFAULT_NOTE_TITLE = "JUNTOS, NOS DESPEDIMOS E\nCELEBRAMOS A MEMÓRIA DE:";
 const GUIDED_STEP_ORDER = [
+    "title",
     "photo",
     "name",
     "birth",
@@ -72,6 +74,8 @@ const elements = {
     wakeEnabled: document.getElementById("wakeEnabled"),
     burialEnabled: document.getElementById("burialEnabled"),
     cremationMode: document.getElementById("cremationMode"),
+    noteTitleInput: document.getElementById("noteTitleInput"),
+    displayNoteTitle: document.getElementById("displayNoteTitle"),
 
     wakeSection: document.getElementById("wakeSection"),
     burialSection: document.getElementById("burialSection"),
@@ -149,6 +153,7 @@ const elements = {
     guidedPosYSlider: document.getElementById("guidedPosYSlider"),
     guidedOpenEditorBtn: document.getElementById("guidedOpenEditorBtn"),
 
+    guidedTitleInput: document.getElementById("guidedTitleInput"),
     guidedNameInput: document.getElementById("guidedNameInput"),
     guidedBirthInput: document.getElementById("guidedBirthInput"),
     guidedDeathInput: document.getElementById("guidedDeathInput"),
@@ -220,7 +225,7 @@ function isGuidedBurialEnabled() {
 }
 
 function getGuidedVisibleSteps() {
-    const steps = ["photo", "name", "birth", "death", "wake-enabled"];
+    const steps = ["title", "photo", "name", "birth", "death", "wake-enabled"];
 
     if (isGuidedWakeEnabled()) {
         steps.push("wake-location", "wake-date", "wake-time", "wake-address");
@@ -446,6 +451,10 @@ function updateGuidedPhotoStatus() {
 function syncGuidedInputsFromForm() {
     if (!elements.guidedModal) return;
 
+    if (elements.guidedTitleInput) {
+        elements.guidedTitleInput.value = elements.noteTitleInput.value || DEFAULT_NOTE_TITLE;
+    }
+
     elements.guidedNameInput.value = elements.nameInput.value || "";
     elements.guidedBirthInput.value = elements.birthInput.value || "";
     elements.guidedDeathInput.value = elements.deathInput.value || "";
@@ -532,7 +541,7 @@ function renderGuidedStep() {
 function refreshGuidedFlow({ keepCurrentStep = false } = {}) {
     if (!elements.guidedSteps.length) return;
 
-    const previousStepId = guidedVisibleStepIds[guidedCurrentStepIndex] || "photo";
+    const previousStepId = guidedVisibleStepIds[guidedCurrentStepIndex] || "title";
     guidedVisibleStepIds = getGuidedVisibleSteps();
     if (!guidedVisibleStepIds.length) return;
 
@@ -885,6 +894,16 @@ function syncDateDisplays() {
     elements.displayBurialDate.textContent = formatDateBR(elements.burialDateInput.value);
 }
 
+function renderNoteTitle(titleValue) {
+    const value = typeof titleValue === "string" ? titleValue.trim() : "";
+    const fallback = value || DEFAULT_NOTE_TITLE;
+    return fallback.replace(/\n/g, "<br>");
+}
+
+function syncNoteTitleDisplay() {
+    elements.displayNoteTitle.innerHTML = renderNoteTitle(elements.noteTitleInput.value);
+}
+
 function syncAllDisplays() {
     textSyncFields.forEach(field => {
         const inputEl = document.getElementById(field.input);
@@ -894,6 +913,7 @@ function syncAllDisplays() {
 
     syncDateDisplays();
     adjustNameSize();
+    syncNoteTitleDisplay();
 }
 
 function openPhotoEditor() {
@@ -1201,7 +1221,8 @@ function captureCurrentState() {
             burialLocationInput: elements.burialLocationInput.value,
             burialDateInput: elements.burialDateInput.value,
             burialTimeInput: elements.burialTimeInput.value,
-            burialAddressInput: elements.burialAddressInput.value
+            burialAddressInput: elements.burialAddressInput.value,
+            noteTitleInput: elements.noteTitleInput.value
         },
         toggles: {
             wakeEnabled: elements.wakeEnabled.checked,
@@ -1674,6 +1695,10 @@ function resetToDefault() {
 function bindEvents() {
     elements.nameInput.addEventListener("input", adjustNameSize);
 
+    elements.noteTitleInput.addEventListener("input", () => {
+        syncNoteTitleDisplay();
+    });
+
     elements.birthInput.addEventListener("change", () => {
         elements.displayBirth.textContent = formatDateBR(elements.birthInput.value);
     });
@@ -1789,6 +1814,13 @@ function bindEvents() {
         elements.guidedRemovePhotoBtn.addEventListener("click", () => {
             clearPhoto();
             updateGuidedPhotoStatus();
+        });
+    }
+
+    if (elements.guidedTitleInput) {
+        elements.guidedTitleInput.addEventListener("input", () => {
+            elements.noteTitleInput.value = elements.guidedTitleInput.value;
+            emitElementEvent(elements.noteTitleInput, "input");
         });
     }
 
