@@ -38,6 +38,16 @@
                 <p class="guided-entry-hint">Uma pergunta por vez para preencher com facilidade.</p>
             </div>
 
+            <!-- Título da Nota -->
+            <div class="section" id="titleSection">
+                <div class="section-title"><i class="fas fa-heading"></i> Título da Nota</div>
+                <div class="section-content">
+                    <textarea id="noteTitleInput" class="form-input form-title-input" rows="2"
+                        placeholder="JUNTOS, NOS DESPEDIMOS E&#10;CELEBRAMOS A MEMÓRIA DE:">JUNTOS, NOS DESPEDIMOS E
+CELEBRAMOS A MEMÓRIA DE:</textarea>
+                </div>
+            </div>
+
             <!-- Photo Upload Section -->
             <div class="section accordion-section is-open" data-accordion id="photoSection">
                 <button type="button" class="section-accordion-toggle" data-accordion-toggle aria-expanded="true">
@@ -309,7 +319,7 @@
                 <div class="condolences-title">Nota de Pesar</div>
 
                 <!-- Cortel Special Title -->
-                <div class="cortel-title">JUNTOS, NOS DESPEDIMOS E<br>CELEBRAMOS A MEMÓRIA DE:</div>
+                <div class="cortel-title" id="displayNoteTitle">JUNTOS, NOS DESPEDIMOS E<br>CELEBRAMOS A MEMÓRIA DE:</div>
 
                 <!-- Mourning Ribbon (shown in Cortel when no photo) -->
                 <div class="mourning-ribbon">
@@ -418,6 +428,14 @@
             <div class="guided-validation-message" id="guidedValidationMessage" role="alert" aria-live="polite"></div>
 
             <div class="guided-step-container">
+                <section class="guided-step" data-guided-step="title">
+                    <h4>Deseja editar o título da nota?</h4>
+                    <p class="guided-step-help">O texto já vem preenchido por padrão e você pode personalizar se quiser.</p>
+                    <textarea class="guided-field-input guided-title-input" id="guidedTitleInput" rows="2"
+                        placeholder="JUNTOS, NOS DESPEDIMOS E&#10;CELEBRAMOS A MEMÓRIA DE:">JUNTOS, NOS DESPEDIMOS E
+CELEBRAMOS A MEMÓRIA DE:</textarea>
+                </section>
+
                 <section class="guided-step" data-guided-step="photo">
                     <h4>Deseja inserir uma foto do falecido (opcional)?</h4>
                     <p class="guided-step-help">Você já pode ajustar zoom e posição aqui mesmo.</p>
